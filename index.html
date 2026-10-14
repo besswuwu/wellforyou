@@ -225,28 +225,7 @@
     --font-en:"Roboto","Noto Sans TC",sans-serif;
     --font-cond:"Roboto Condensed","Roboto","Noto Sans TC",sans-serif;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      color-scheme: dark;
-      --bg:#14161d;
-      --surface:#1c1f28;
-      --surface-2:#20242f;
-      --ink:#f1ece5;
-      --ink-soft:#d7d1c9;
-      --muted:#9a938b;
-      --brand:#8ea0ff;
-      --brand-deep:#6f86ff;
-      --brand-tint:#232a44;
-      --accent:#ff824f;
-      --accent-deep:#ff824f;
-      --line:#2c313d;
-      --line-strong:#3a404e;
-      --ring:rgba(142,160,255,.4);
-      --hero-ink:#ffffff;
-      --shadow:0 1px 2px rgba(0,0,0,.3), 0 14px 34px -20px rgba(0,0,0,.7);
-      --shadow-lift:0 2px 6px rgba(0,0,0,.4), 0 26px 52px -26px rgba(0,0,0,.8);
-    }
-  }
+  /* 已停用跟隨系統的深色模式：品牌色票固定為淺色（米白底）。需要時可手動加 data-theme="dark" */
   :root[data-theme="dark"]{
     color-scheme: dark;
     --bg:#14161d;
