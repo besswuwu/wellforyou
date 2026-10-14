@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# 網域確定後，請取消下一行註解並改成實際網址：
+# Sitemap: https://你的網域/sitemap.xml
