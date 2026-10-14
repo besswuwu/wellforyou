@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-label="坐在窗邊等你回家的貓咪示意插圖">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbe9da"/>
+      <stop offset="1" stop-color="#f6d9c3"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="640" fill="url(#bg)"/>
+  <!-- window -->
+  <rect x="352" y="64" width="224" height="268" rx="18" fill="#e7ebfd" stroke="#ffffff" stroke-width="12"/>
+  <path d="M464 64v268M352 198h224" stroke="#ffffff" stroke-width="10"/>
+  <circle cx="520" cy="120" r="28" fill="#ffe3a3" opacity=".9"/>
+  <!-- floor -->
+  <ellipse cx="320" cy="560" rx="250" ry="38" fill="#e9c7a9" opacity=".7"/>
+  <!-- tail -->
+  <path d="M430 520c70 6 108-52 74-106" fill="none" stroke="#f2a65a" stroke-width="34" stroke-linecap="round"/>
+  <path d="M492 420c10 14 14 26 12 38" fill="none" stroke="#e08a3c" stroke-width="12" stroke-linecap="round" opacity=".6"/>
+  <!-- body -->
+  <ellipse cx="320" cy="470" rx="130" ry="100" fill="#f2a65a"/>
+  <ellipse cx="320" cy="500" rx="78" ry="70" fill="#fff4e6"/>
+  <!-- paws -->
+  <ellipse cx="268" cy="552" rx="34" ry="20" fill="#fff4e6"/>
+  <ellipse cx="372" cy="552" rx="34" ry="20" fill="#fff4e6"/>
+  <!-- ears -->
+  <path d="M214 250l22-104 78 56z" fill="#f2a65a"/>
+  <path d="M426 250l-22-104-78 56z" fill="#f2a65a"/>
+  <path d="M232 222l12-52 38 28z" fill="#f8b9a4"/>
+  <path d="M408 222l-12-52-38 28z" fill="#f8b9a4"/>
+  <!-- head -->
+  <ellipse cx="320" cy="290" rx="124" ry="108" fill="#f2a65a"/>
+  <!-- forehead stripes -->
+  <path d="M320 190v34M290 196l8 30M350 196l-8 30" stroke="#e08a3c" stroke-width="9" stroke-linecap="round"/>
+  <!-- muzzle -->
+  <ellipse cx="320" cy="334" rx="62" ry="44" fill="#fff4e6"/>
+  <!-- eyes -->
+  <ellipse cx="272" cy="286" rx="17" ry="22" fill="#2a2726"/>
+  <ellipse cx="368" cy="286" rx="17" ry="22" fill="#2a2726"/>
+  <circle cx="278" cy="278" r="6" fill="#ffffff"/>
+  <circle cx="374" cy="278" r="6" fill="#ffffff"/>
+  <!-- nose & mouth -->
+  <path d="M308 318h24l-12 14z" fill="#f08a8a"/>
+  <path d="M320 332v14M320 346q-14 14-30 4M320 346q14 14 30 4" fill="none" stroke="#2a2726" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- whiskers -->
+  <path d="M236 330l-62-10M236 344l-64 6M404 330l62-10M404 344l64 6" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+  <!-- blush -->
+  <ellipse cx="238" cy="326" rx="14" ry="9" fill="#f8b9a4" opacity=".7"/>
+  <ellipse cx="402" cy="326" rx="14" ry="9" fill="#f8b9a4" opacity=".7"/>
+</svg>
