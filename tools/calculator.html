@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>餵你好 費用計算（內部）</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f5efea; --surface:#fff; --surface-2:#fbf7f2; --ink:#2b2726; --ink-soft:#5a524e; --muted:#8a817b;
+    --brand:#1b3de4; --brand-deep:#152fae; --brand-tint:#e7ebfd; --accent:#fd682e; --accent-deep:#e5551d;
+    --line:#e6ddd2; --warn:#b3261e; --warn-bg:#fdeceb; --ok:#1f7a4d;
+    --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6}
+  header{background:var(--brand);color:#fff;padding:18px 16px}
+  header .in{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  header h1{margin:0;font-size:20px;font-weight:900}
+  header small{opacity:.85;font-size:13px}
+  main{max-width:1100px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:start}
+  @media (max-width:860px){main{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 18px 8px;margin-bottom:16px}
+  .card h2{margin:0 0 12px;font-size:16px;font-weight:900;color:var(--brand-deep)}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px dashed var(--line)}
+  .row:first-of-type{border-top:none}
+  .row .lb{flex:1;min-width:0}
+  .row .lb b{font-weight:700}
+  .row .lb small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4}
+  .stepper{display:flex;align-items:center;gap:6px;flex:none}
+  .stepper button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font-size:20px;line-height:1;cursor:pointer;color:var(--ink)}
+  .stepper button:active{background:var(--brand-tint)}
+  .stepper input{width:58px;height:38px;text-align:center;border:1px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;background:#fff}
+  select,input[type=number].plain{height:40px;border:1px solid var(--line);border-radius:10px;padding:0 10px;font-size:15px;font-family:inherit;background:#fff;max-width:100%}
+  label.chk{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px dashed var(--line);cursor:pointer}
+  label.chk:first-of-type{border-top:none}
+  label.chk input{width:20px;height:20px;margin-top:3px;flex:none}
+  label.chk small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4}
+  .warn{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:14px;margin:8px 0}
+  .note{color:var(--muted);font-size:13px;padding:6px 0 12px}
+  .sticky{position:sticky;top:12px}
+  @media (max-width:860px){.sticky{position:static}}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  td{padding:8px 4px;border-top:1px solid var(--line);vertical-align:top}
+  td.amt{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700}
+  td small{display:block;color:var(--muted);font-size:12px;line-height:1.4}
+  tr.sub td{background:var(--surface-2);font-weight:900}
+  tr.disc td.amt{color:var(--ok)}
+  tr.total td{border-top:2px solid var(--brand);font-size:18px;font-weight:900;color:var(--brand-deep);background:var(--brand-tint)}
+  .pay{margin:12px 0 4px;padding:12px;border-radius:12px;background:var(--surface-2);font-size:14.5px}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 6px}
+  .btn{height:44px;padding:0 18px;border-radius:999px;border:none;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
+  .btn.p{background:var(--accent);color:#fff}
+  .btn.s{background:var(--brand-tint);color:var(--brand-deep)}
+  .btn.g{background:transparent;border:1px solid var(--line);color:var(--ink-soft)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .toast.on{opacity:1}
+  .other{margin-top:8px;font-size:13.5px;color:var(--ink-soft)}
+  details{margin:10px 0 4px;font-size:13.5px;color:var(--ink-soft)}
+  details summary{cursor:pointer;font-weight:700}
+  .row.locked .lb b::after{content:'（日曆自動計算）';color:var(--ok);font-size:12px;font-weight:400;margin-left:6px}
+  .row.locked .stepper input{background:var(--surface-2);color:var(--ink-soft)}
+  .sched{margin-top:10px;padding-top:6px;border-top:1px dashed var(--line)}
+  .sched .f{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+  .sched label{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:3px}
+  .sched input{height:38px;border:1px solid var(--line);border-radius:10px;padding:0 8px;font-family:inherit;font-size:15px;background:#fff}
+  .allbtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0;font-size:13px;color:var(--ink-soft)}
+  .allbtns button{height:32px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);font-family:inherit;cursor:pointer}
+  .cal{user-select:none}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .cal-head b{font-size:16px}
+  .cal-head button,.cal-modes button{height:36px;min-width:36px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font-family:inherit;font-size:14px;cursor:pointer;color:var(--ink)}
+  .cal-modes{display:flex;gap:6px;margin:6px 0 10px;flex-wrap:wrap}
+  .cal-modes button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal-grid .wd{text-align:center;font-size:12.5px;color:var(--muted);padding:2px 0}
+  .cal-grid .d{position:relative;height:42px;border:1px solid var(--line);border-radius:10px;background:#fff;font-family:inherit;font-size:15px;cursor:pointer;color:var(--ink);padding:0}
+  .cal-grid .d.we{color:var(--accent-deep)}
+  .cal-grid .d.hol::after{content:'';position:absolute;right:5px;top:5px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  .cal-grid .d.cny::after{background:var(--warn)}
+  .cal-grid .d.sel{background:var(--brand);border-color:var(--brand);color:#fff}
+  .cal-grid .d.today{outline:2px solid var(--brand-tint)}
+  .cal-grid .blank{height:42px}
+  .cal-legend{font-size:12.5px;color:var(--muted);margin:8px 0 4px}
+  .cal-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin:0 4px 0 8px;vertical-align:baseline}
+  .cal-legend i.r{background:var(--warn)}
+  .drow{padding:10px 0;border-top:1px dashed var(--line);display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
+  .drow .ds{display:flex;gap:8px;flex-wrap:wrap;grid-column:1/3}
+  .drow label{font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:4px}
+  .drow select{height:34px;font-size:14px;padding:0 6px}
+  .drow .x{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);cursor:pointer;font-size:16px}
+  .drow .tag{display:inline-block;font-size:12px;background:var(--brand-tint);color:var(--brand-deep);border-radius:999px;padding:0 8px;margin-left:6px}
+  textarea{width:100%;min-height:200px;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:inherit;font-size:14px;background:#fff;margin-top:8px}
+
+  /* 版面整理：服務日期區 */
+  .no{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:13px;margin-right:8px;vertical-align:1px}
+  .sec{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.08em;margin:22px 4px 8px}
+  .sp{flex:1}
+  .mut{color:var(--muted);font-size:13px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface-2)}
+  .seg button{height:32px;padding:0 12px;border:none;background:transparent;font-family:inherit;font-size:13.5px;cursor:pointer;color:var(--ink-soft)}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button.on{background:var(--brand);color:#fff}
+  .lnk{border:none;background:none;color:var(--brand-deep);font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline;padding:4px}
+  .cal-head{margin-bottom:10px}
+  .cal-grid{gap:5px}
+  .cal-grid .d{height:40px;border-radius:9px}
+  .cal-foot{display:flex;align-items:center;gap:8px;margin:12px 0 6px}
+  .cal-legend{margin:6px 0 2px}
+  .cal-src{font-size:12px;color:var(--muted);margin:0 0 12px}
+  .dhead{display:flex;align-items:center;gap:8px;padding:12px 0 8px;border-top:1px solid var(--line);flex-wrap:wrap}
+  .cal .drow{display:grid;grid-template-columns:1fr auto 118px 32px;gap:8px;align-items:center;padding:7px 0;border-top:1px dashed var(--line)}
+  .cal .drow .dl{min-width:0;line-height:1.3}
+  .cal .drow .dl .tag{display:block;margin:2px 0 0;width:fit-content;max-width:100%}
+  .cal .drow select{height:34px;font-size:13px;padding:0 6px}
+  .cal .drow .x{width:32px;height:32px}
+  .f2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .f2 label{display:flex;flex-direction:column;gap:4px;font-size:13.5px;font-weight:700;color:var(--ink)}
+  .f2 label small{font-weight:400;color:var(--muted);font-size:12px;margin-top:-3px}
+  .f2 select{height:40px;font-size:15px}
+  .meds{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
+  .meds b{font-size:13.5px;margin-right:4px}
+  .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;background:var(--surface-2);cursor:pointer}
+  .pill input{width:16px;height:16px}
+  .sched{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);margin-bottom:10px}
+  .sched label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-soft)}
+  .sched input{height:38px;border:1px solid var(--line);border-radius:10px;padding:0 10px;font-family:inherit;font-size:15px;background:#fff;width:100%}
+  @media (max-width:520px){.f2{grid-template-columns:1fr}.cal .drow{grid-template-columns:1fr auto 32px}.cal .drow .x{grid-column:3;grid-row:1}.cal .drow select{grid-column:1/4;grid-row:2}}
+</style>
+</head>
+<body>
+<header><div class="in"><h1>餵你好 費用計算</h1><small>內部用・規則版本：02 服務價目表 v2.3</small></div></header>
+<main>
+  <section id="inputs"></section>
+  <section class="sticky">
+    <div class="card">
+      <h2>報價明細（對照表單 2）</h2>
+      <div id="warnings"></div>
+      <table id="detail"></table>
+      <div class="pay" id="pay"></div>
+      <div class="other" id="other"></div>
+      <div class="btns">
+        <button class="btn p" id="copyLine">複製 LINE 報價</button>
+        <button class="btn s" id="copyForm">複製表單 2 填寫對照</button>
+        <button class="btn s" id="copySched">複製排班列</button>
+        <button class="btn g" id="reset">重設</button>
+      </div>
+      <details><summary>預覽 LINE 報價文字</summary><textarea id="preview" readonly></textarea></details>
+      <p class="note">這是初步估價工具，實際金額以免費家訪後的報價與《貓咪照護資料與費用結算表》為準。資料只在這個頁面計算，不會儲存。</p>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== 規則設定：對照 Notion《02 服務價目表》v2.3，改價只改這裡 ===== */
+const RULES = {
+  base: 600,                                   // A 基本服務費 / 趟（1～2 隻貓 40 分鐘）
+  baseMinutes: 40,
+  distance: [                                  // B 距離加價 / 趟，起算點：捷運後驛站（Google Maps）
+    {id: 'd0', label: '3 公里內（核心區）', fee: 0},
+    {id: 'd1', label: '3～5 公里', fee: 100},
+    {id: 'd2', label: '5～7 公里', fee: 200},
+    {id: 'd3', label: '超過 7 公里（個案報價）', fee: null}
+  ],
+  multiCat: {freeCats: 2, perCat: 100, minutesPerCat: 10, quoteFrom: 6},   // C 第 3 隻起每增加 1 隻 +100、+10 分鐘；6 隻以上個案報價
+  slot: 100,                                   // D 早鳥 06:00–08:00 或夜間 21:00–23:00 / 趟
+  holiday: {national: 200, typhoon: 200, cny: 400},                        // E 國定假日 / 颱風仍服務 / 春節（除夕～初五）/ 趟
+  addons: {extend15: 100, med: 100, chore: 50, video: 50, key: 200},       // F 加購
+  videoFree: true,                             // 即時視訊回報：定價 $50 / 次，目前免費贈送
+  discounts: {founder: 0.8, bundle5: 50, bundle10: 80, repeat: 30, sameDay2: 100, referral: 200},  // G、H
+  payment: {fullPrepayMaxTrips: 4, depositRate: 0.5},                      // I 付款
+  other: {escort: 300, errand: 100}            // 另計：緊急就醫陪同 / 小時；代購跑腿 / 次
+};
+
+const $ = (s) => document.querySelector(s);
+const money = (n) => '$' + Math.round(n).toLocaleString('en-US');
+const num = (id) => Math.max(0, parseInt(document.getElementById(id).value, 10) || 0);
+
+/* ===== 介面 ===== */
+const SCHEMA = [
+  {title: '基本資料', items: [
+    {t: 'select', id: 'dist', label: '距離級距', hint: '以捷運後驛站起算，Google Maps 計算', options: RULES.distance.map(d => [d.id, d.label])},
+    {t: 'step', id: 'distCase', label: '超過 7 公里：每趟加價金額', hint: '個案報價，只在選「超過 7 公里」時使用', step: 50, max: 5000, big: true},
+    {t: 'step', id: 'cats', label: '貓咪數量', hint: '1～2 隻不加價；第 3 隻起每增加 1 隻 +$100、每趟延長 10 分鐘', min: 1, def: 1, max: 20},
+    {t: 'step', id: 'catCase', label: '6 隻以上：每趟加價金額', hint: '個案報價，只在 6 隻以上時使用', step: 50, max: 5000, big: true},
+    {t: 'step', id: 'trips', label: '總趟數', hint: '整份預約的總趟數', min: 1, def: 1, max: 200}
+  ]},
+  {title: '加價（填趟數，不超過總趟數）', items: [
+    {t: 'step', id: 'slot', label: '早鳥或夜間趟數', hint: '早鳥 06:00–08:00、夜間 21:00–23:00，每趟 +$100（以預約的抵達時間判定）', max: 200},
+    {t: 'step', id: 'hNat', label: '國定假日趟數', hint: '每趟 +$200，不含一般週末', max: 200},
+    {t: 'step', id: 'hCny', label: '春節趟數（除夕～初五）', hint: '每趟 +$400', max: 200}
+  ]},
+  {title: '服務後可能加計（不含在總額）', items: [
+    {t: 'step', id: 'hTy', label: '颱風天仍服務趟數', hint: '無法事先預估，每趟 +$200；實際出勤後再填，結案時結算', max: 200}
+  ]},
+  {title: '加購項目', items: [
+    {t: 'step', id: 'ext', label: '延長服務（15 分鐘為單位）', hint: '每 15 分鐘 +$100，填總單位數', max: 200},
+    {t: 'step', id: 'med', label: '口服藥／外用藥趟數', hint: '每趟 +$100', max: 200},
+    {t: 'step', id: 'chore', label: '順手家務項數', hint: '每項 +$50（收信、澆花、倒垃圾、開關窗簾或燈）', max: 500},
+    {t: 'step', id: 'video', label: '即時視訊回報次數', hint: '定價 $50 / 次，目前免費贈送，不計入總額', max: 200},
+    {t: 'step', id: 'key', label: '鑰匙另約取或還趟數', hint: '每趟 +$200，取、還各計一趟', max: 200}
+  ]},
+  {title: '優惠（折扣類擇優，不疊加）', items: [
+    {t: 'chk', id: 'founder', label: '創始客戶 8 折', hint: '限量前 10 組，須簽行銷使用同意；以小計（A～F）打 8 折'},
+    {t: 'chk', id: 'bundle', label: '多趟套裝', hint: '連續 5 趟起每趟 −$50，10 趟起每趟 −$80'},
+    {t: 'chk', id: 'repeat', label: '回購客戶', hint: '每趟 −$30，主要用於 1～4 趟；達套裝門檻時與套裝擇優'}
+  ]},
+  {title: '可另外疊加', items: [
+    {t: 'step', id: 'same2', label: '同日第二趟的次數', hint: '每次 −$100', max: 200},
+    {t: 'step', id: 'ref', label: '推薦折抵金次數', hint: '每次 −$200（推薦成功，下次服務折抵）', max: 20}
+  ]}
+];
+
+function stepHtml(it) {
+  const min = it.min ?? 0, def = it.def ?? 0, max = it.max ?? 999, st = it.step ?? 1;
+  return `<div class="row" data-row="${it.id}"><div class="lb"><b>${it.label}</b><small>${it.hint || ''}</small></div>
+    <div class="stepper"><button type="button" data-id="${it.id}" data-d="-${st}" aria-label="減少">−</button>
+    <input type="number" inputmode="numeric" id="${it.id}" min="${min}" max="${max}" value="${def}" step="${st}">
+    <button type="button" data-id="${it.id}" data-d="${st}" aria-label="增加">＋</button></div></div>`;
+}
+function schedBoxHtml() {
+  return `<div class="f2"><label>第一趟抵達時間<select id="schedT1"><option value="">請選擇</option><option value="06:00">06:00</option><option value="06:30">06:30</option><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option><option value="19:30">19:30</option><option value="20:00">20:00</option><option value="20:30">20:30</option><option value="21:00">21:00</option><option value="21:30">21:30</option><option value="22:00">22:00</option><option value="22:30">22:30</option><option value="23:00">23:00</option></select></label>
+    <label>第二趟抵達時間<select id="schedT2"><option value="">無</option><option value="06:00">06:00</option><option value="06:30">06:30</option><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option><option value="19:30">19:30</option><option value="20:00">20:00</option><option value="20:30">20:30</option><option value="21:00">21:00</option><option value="21:30">21:30</option><option value="22:00">22:00</option><option value="22:30">22:30</option><option value="23:00">23:00</option></select></label></div>
+    <div class="meds"><b>給藥趟次</b><label class="pill"><input type="checkbox" id="medFirst"> 第一趟</label><label class="pill"><input type="checkbox" id="medSecond"> 第二趟</label><label class="pill"><input type="checkbox" id="medAll"> 每趟皆給藥</label></div>
+    <div class="note">早鳥（06:00–08:00）與夜間（21:00–23:00）依抵達時間自動判定；口服藥／外用藥趟數依給藥趟次自動計算。</div>
+    <div class="sched"><label>複製排班列用，選填：客戶（編號 稱呼）<input id="schedCust" placeholder="例：C001 王小姐"></label></div>`;
+}
+function build() {
+  let h = '<div class="card cal"><h2><span class="no">1</span>服務日期</h2><div id="calbox"></div><div id="datelist"></div></div>'
+    + '<div class="card"><h2><span class="no">2</span>預定抵達時間與給藥</h2>' + schedBoxHtml() + '</div>'
+    + '<div class="sec">其他條件</div>';
+  for (const g of SCHEMA) {
+    h += `<div class="card"><h2>${g.title}</h2>`;
+    for (const it of g.items) {
+      if (it.t === 'select') {
+        h += `<div class="row"><div class="lb"><b>${it.label}</b><small>${it.hint}</small></div><select id="${it.id}">${it.options.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('')}</select></div>`;
+      } else if (it.t === 'step') {
+        h += stepHtml(it);
+      } else {
+        h += `<label class="chk"><input type="checkbox" id="${it.id}"><span><b>${it.label}</b><small>${it.hint}</small></span></label>`;
+      }
+    }
+    h += '</div>';
+  }
+  $('#inputs').innerHTML = h;
+  renderCal();
+}
+
+
+/* ===== 日曆：選服務日期，自動帶入趟數、假日、早鳥夜間、給藥 ===== */
+// 假日自動帶入僅供參考（需每年依政府公告更新、補假日請手動調整），選好日期後可逐日修改
+const HOLIDAYS = {   // 內建備用表（連不上行事曆資料時使用）
+  '2026-10-10': '國定假日', '2026-10-25': '國定假日', '2026-12-25': '國定假日',
+  '2027-01-01': '國定假日',
+  '2027-02-05': '春節', '2027-02-06': '春節', '2027-02-07': '春節', '2027-02-08': '春節', '2027-02-09': '春節', '2027-02-10': '春節',
+  '2027-02-28': '國定假日', '2027-04-04': '國定假日', '2027-04-05': '國定假日', '2027-05-01': '國定假日',
+  '2027-06-09': '國定假日', '2027-09-15': '國定假日', '2027-10-10': '國定假日'
+};
+const HOLNAME = {};                  // 日期 -> 行事曆上的假日名稱
+const HOL_SRC = 'https://cdn.jsdelivr.net/gh/ruyut/TaiwanCalendar/data/';   // 台灣行事曆（依行政院人事行政總處公告整理）
+const holState = {};                 // 年份 -> 'loading' | 'ok' | 'fail'
+function holStatusText() {
+  const ys = Object.keys(holState); if (!ys.length) return '';
+  const ok = ys.filter(y => holState[y] === 'ok'), fail = ys.filter(y => holState[y] === 'fail');
+  if (ok.length && !fail.length) return '假日資料：已自動載入台灣行事曆（' + ok.join('、') + ' 年）';
+  if (ok.length) return '假日資料：' + ok.join('、') + ' 年已載入，' + fail.join('、') + ' 年使用內建日期表';
+  if (fail.length) return '假日資料：連不上行事曆，目前使用內建日期表，請自行核對';
+  return '假日資料：載入中…';
+}
+async function loadHolidays(year) {
+  if (holState[year]) return;
+  holState[year] = 'loading';
+  try {
+    const r = await fetch(HOL_SRC + year + '.json');
+    if (!r.ok) throw new Error('http ' + r.status);
+    const arr = await r.json();
+    for (const k of Object.keys(HOLIDAYS)) if (k.startsWith(year + '-')) delete HOLIDAYS[k];
+    const fmt = (d) => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+    for (const e of arr) if (e.isHoliday && e.description) { HOLIDAYS[fmt(e.date)] = '國定假日'; HOLNAME[fmt(e.date)] = e.description; }
+    const eve = arr.find(e => e.description && e.description.includes('除夕'));
+    if (eve) { const st = parseKey(fmt(eve.date)); for (let i = 0; i <= 5; i++) { const t = new Date(st); t.setDate(t.getDate() + i); const kk = key(t.getFullYear(), t.getMonth(), t.getDate()); HOLIDAYS[kk] = '春節'; if (!HOLNAME[kk]) HOLNAME[kk] = i === 0 ? '農曆除夕' : '春節'; } }
+    holState[year] = 'ok';
+  } catch (e) { holState[year] = 'fail'; }
+  if (typeof renderCal === 'function' && document.getElementById('calbox')) { renderCal(); applyDates(); render(); }
+}
+const WD = ['日', '一', '二', '三', '四', '五', '六'];
+const sel = new Map();           // 'YYYY-MM-DD' -> {trips, slot, hol, med}
+let calY = new Date().getFullYear(), calM = new Date().getMonth(), rangeMode = false, rangeStart = null;
+const pad = (n) => String(n).padStart(2, '0');
+const key = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
+const parseKey = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+const labelOf = (k) => { const dt = parseKey(k); return `${dt.getMonth() + 1}/${dt.getDate()}（${WD[dt.getDay()]}）`; };
+const holOf = (k) => { const v = sel.get(k); return v.hol === 'auto' ? (HOLIDAYS[k] || '無') : v.hol; };
+
+function renderCal() {
+  const first = new Date(calY, calM, 1), days = new Date(calY, calM + 1, 0).getDate(), today = new Date();
+  let g = WD.map(w => `<div class="wd">${w}</div>`).join('');
+  for (let i = 0; i < first.getDay(); i++) g += '<div class="blank"></div>';
+  for (let d = 1; d <= days; d++) {
+    const k = key(calY, calM, d), wd = (first.getDay() + d - 1) % 7;
+    const h = HOLIDAYS[k];
+    const cls = ['d', (wd === 0 || wd === 6) ? 'we' : '', h ? 'hol' : '', h === '春節' ? 'cny' : '', sel.has(k) ? 'sel' : '',
+      (today.getFullYear() === calY && today.getMonth() === calM && today.getDate() === d) ? 'today' : ''].join(' ');
+    g += `<button type="button" class="${cls}" data-cal="${k}" ${h ? `title="${HOLNAME[k] || h}"` : ''}>${d}</button>`;
+  }
+  $('#calbox').innerHTML = `<div class="cal-head"><button type="button" data-nav="-1" aria-label="上個月">‹</button><b>${calY} 年 ${calM + 1} 月</b><button type="button" data-nav="1" aria-label="下個月">›</button></div>
+    <div class="cal-grid">${g}</div>
+    <div class="cal-foot"><span class="seg"><button type="button" data-mode="0" class="${rangeMode ? '' : 'on'}">單日點選</button><button type="button" data-mode="1" class="${rangeMode ? 'on' : ''}">連續區間${rangeMode && rangeStart ? '：請點結束日' : ''}</button></span><span class="sp"></span><button type="button" class="lnk" data-clear="1">清除全部日期</button></div>
+    <div class="cal-legend"><i></i>國定假日（含補假）<i class="r"></i>春節（除夕～初五）</div>
+    <div class="cal-src">${holStatusText()}（來源：台灣行事曆），以政府公告為準</div>`;
+  renderDates();
+}
+function renderDates() {
+  const keys = [...sel.keys()].sort();
+  if (!keys.length) { $('#datelist').innerHTML = '<div class="note">點選上方日期後，這裡會列出每一天，趟數與假日加價會自動帶入。</div>'; return; }
+  let tt = 0; for (const v of sel.values()) tt += v.trips;
+  let h = `<div class="dhead"><b>已選 ${keys.length} 天，共 ${tt} 趟</b><span class="sp"></span><span class="mut">全部設為每天</span><span class="seg"><button type="button" data-all="1">1 趟</button><button type="button" data-all="2">2 趟</button></span></div>`;
+  const hopt = (v, k, val, label) => `<option value="${val}" ${holOf(k) === val ? 'selected' : ''}>${label}${v.hol === 'auto' && holOf(k) === val ? '（自動）' : ''}</option>`;
+  for (const k of keys) {
+    const v = sel.get(k), hol = holOf(k);
+    const nm = HOLNAME[k] && HOLNAME[k] !== hol ? '・' + HOLNAME[k] : '';
+    h += `<div class="drow" data-date="${k}"><div class="dl"><b>${labelOf(k)}</b>${hol !== '無' ? `<span class="tag">${hol}${nm}</span>` : ''}</div>
+      <span class="seg" title="當天趟數"><button type="button" data-set-trips="1" class="${v.trips === 1 ? 'on' : ''}">1 趟</button><button type="button" data-set-trips="2" class="${v.trips === 2 ? 'on' : ''}">2 趟</button></span>
+      <select data-f="hol" title="假日類型">${hopt(v, k, '無', '平日')}${hopt(v, k, '國定假日', '國定假日')}${hopt(v, k, '春節', '春節')}</select>
+      <button type="button" class="x" data-del="${k}" aria-label="移除">×</button></div>`;
+  }
+  $('#datelist').innerHTML = h;
+}
+function schedText() {
+  const keys = [...sel.keys()].sort(), cust = (document.getElementById('schedCust') || {}).value || '', t1 = (document.getElementById('schedT1') || {}).value || '', t2 = (document.getElementById('schedT2') || {}).value || '';
+  const all = !!(document.getElementById('medAll') || {}).checked, m1 = all || !!(document.getElementById('medFirst') || {}).checked, m2 = all || !!(document.getElementById('medSecond') || {}).checked;
+  const rows = [];
+  for (const k of keys) {
+    const v = sel.get(k), d = k.replace(/-/g, '/');
+    rows.push([d, '第一趟', t1, cust, m1 ? '是' : '否'].join('\t'));
+    if (v.trips === 2) rows.push([d, '第二趟', t2, cust, m2 ? '是' : '否'].join('\t'));
+  }
+  return rows.join('\n');
+}
+const DERIVED = ['trips', 'slot', 'hNat', 'hCny', 'med'];
+function lockDerived(on) {
+  for (const id of DERIVED) {
+    const i = document.getElementById(id); if (!i) continue;
+    i.readOnly = on;
+    const row = i.closest('.row'); if (row) { row.classList.toggle('locked', on); row.querySelectorAll('button').forEach(b => { b.disabled = on; b.style.opacity = on ? .35 : 1; }); }
+  }
+}
+let slotInfo = {early: 0, night: 0};
+function applyDates() {
+  lockDerived(sel.size > 0);
+  if (!sel.size) return;
+  let trips = 0, nat = 0, cny = 0, same2 = 0;
+  const n1 = sel.size;
+  for (const [k, v] of sel) {
+    trips += v.trips; if (v.trips === 2) same2 += 1;
+    const h = holOf(k); if (h === '國定假日') nat += v.trips; else if (h === '春節') cny += v.trips;
+  }
+  const slotOf = (t) => !t ? '' : (t < '08:30' ? '早鳥' : (t > '20:30' ? '夜間' : ''));
+  const t1 = (document.getElementById('schedT1') || {}).value || '', t2 = (document.getElementById('schedT2') || {}).value || '';
+  const s1 = slotOf(t1), s2 = slotOf(t2);
+  const slot = (s1 ? n1 : 0) + (s2 ? same2 : 0);
+  slotInfo = {early: (s1 === '早鳥' ? n1 : 0) + (s2 === '早鳥' ? same2 : 0), night: (s1 === '夜間' ? n1 : 0) + (s2 === '夜間' ? same2 : 0)};
+  const all = !!(document.getElementById('medAll') || {}).checked;
+  const m1 = all || !!(document.getElementById('medFirst') || {}).checked, m2 = all || !!(document.getElementById('medSecond') || {}).checked;
+  const med = (m1 ? n1 : 0) + (m2 ? same2 : 0);
+  const put = (id, val) => { document.getElementById(id).value = val; };
+  put('trips', Math.max(1, trips)); put('slot', slot); put('hNat', nat); put('hCny', cny); put('med', med); put('same2', same2);
+}
+function datesSummary() {
+  const keys = [...sel.keys()].sort();
+  if (!keys.length) return '';
+  return keys.map(k => { const v = sel.get(k); return labelOf(k) + (v.trips === 2 ? ' 2 趟' : ''); }).join('、');
+}
+function calClick(e) {
+  const st = e.target.closest('[data-set-trips]');
+  if (st) { const row = st.closest('[data-date]'); sel.get(row.dataset.date).trips = parseInt(st.dataset.setTrips, 10); renderCal(); applyDates(); render(); return true; }
+  const all = e.target.closest('[data-all]');
+  if (all) { const n = parseInt(all.dataset.all, 10); for (const v of sel.values()) { v.trips = n; } renderCal(); applyDates(); render(); return true; }
+  const nav = e.target.closest('[data-nav]'), day = e.target.closest('[data-cal]'), mode = e.target.closest('[data-mode]'), clr = e.target.closest('[data-clear]'), del = e.target.closest('[data-del]');
+  if (nav) { calM += parseInt(nav.dataset.nav, 10); if (calM < 0) { calM = 11; calY--; } if (calM > 11) { calM = 0; calY++; } loadHolidays(calY); renderCal(); return true; }
+  if (mode) { rangeMode = mode.dataset.mode === '1'; rangeStart = null; renderCal(); return true; }
+  if (clr) { sel.clear(); rangeStart = null; renderCal(); render(); return true; }
+  if (del) { sel.delete(del.dataset.del); renderCal(); applyDates(); render(); return true; }
+  if (day) {
+    const k = day.dataset.cal, mk = () => ({trips: 1, slot: 0, hol: 'auto', med: 0});
+    if (rangeMode) {
+      if (!rangeStart) { rangeStart = k; sel.set(k, sel.get(k) || mk()); }
+      else {
+        let a = parseKey(rangeStart), b = parseKey(k); if (a > b) [a, b] = [b, a];
+        for (let t = new Date(a); t <= b; t.setDate(t.getDate() + 1)) { const kk = key(t.getFullYear(), t.getMonth(), t.getDate()); if (!sel.has(kk)) sel.set(kk, mk()); }
+        rangeStart = null;
+      }
+    } else if (sel.has(k)) sel.delete(k); else sel.set(k, mk());
+    renderCal(); applyDates(); render(); return true;
+  }
+  return false;
+}
+function dateChange(e) {
+  const row = e.target.closest('[data-date]'), f = e.target.dataset.f;
+  if (!row || !f) return false;
+  const v = sel.get(row.dataset.date);
+  if (f === 'hol') v.hol = e.target.value; else v[f] = parseInt(e.target.value, 10);
+  renderCal(); applyDates(); render(); return true;
+}
+
+/* ===== 計算 ===== */
+function calc() {
+  const R = RULES, T = Math.max(1, num('trips')), cats = Math.max(1, num('cats'));
+  const warns = [];
+  const distRule = R.distance.find(d => d.id === $('#dist').value);
+  const distFee = distRule.fee === null ? num('distCase') : distRule.fee;
+  const distCase = distRule.fee === null;
+  let catFee, catCase = false;
+  if (cats >= R.multiCat.quoteFrom) { catFee = num('catCase'); catCase = true; }
+  else catFee = Math.max(0, cats - R.multiCat.freeCats) * R.multiCat.perCat;
+  const minutes = R.baseMinutes + Math.max(0, Math.min(cats, R.multiCat.quoteFrom - 1) - R.multiCat.freeCats) * R.multiCat.minutesPerCat;
+
+  const slot = num('slot'), hNat = num('hNat'), hTy = num('hTy'), hCny = num('hCny');
+  const holidayTrips = hNat + hCny;
+  if (slot > T) warns.push('早鳥或夜間趟數超過總趟數。');
+  if (holidayTrips > T || hTy > T) warns.push('國定假日與春節趟數合計超過總趟數，請確認是否重複計算。');
+  if (num('med') > T) warns.push('口服藥／外用藥趟數超過總趟數。');
+  if (num('key') > T) warns.push('鑰匙另約取或還趟數超過總趟數。');
+  if (num('same2') > T) warns.push('同日第二趟的次數超過總趟數。');
+  if (distCase && !distFee) warns.push('超過 7 公里屬個案報價，請填每趟加價金額。');
+  if (catCase && !catFee) warns.push('6 隻以上屬個案報價，請填每趟加價金額。');
+
+  const rows = [];
+  const add = (code, name, calc, amount, extra) => rows.push({code, name, calc, amount, extra: extra || ''});
+  add('A', '基本服務費', `${money(R.base)} × ${T} 趟`, R.base * T, `每趟 ${minutes} 分鐘起`);
+  if (distFee) add('B', '距離加價', `${money(distFee)} × ${T} 趟${distCase ? '（個案）' : ''}`, distFee * T);
+  if (catFee) add('C', '多貓加價', `${cats} 隻，每趟 ${money(catFee)} × ${T} 趟${catCase ? '（個案）' : ''}`, catFee * T, `每趟 ${minutes} 分鐘`);
+  if (slot) add('D', '時段加價（早鳥／夜間）', `${money(R.slot)} × ${slot} 趟`, R.slot * slot);
+  if (holidayTrips) {
+    const parts = [];
+    if (hNat) parts.push(`國定假日 ${hNat} 趟 × ${money(R.holiday.national)}`);
+    if (hCny) parts.push(`春節 ${hCny} 趟 × ${money(R.holiday.cny)}`);
+    add('E', '假日加價', parts.join('、'), R.holiday.national * hNat + R.holiday.cny * hCny);
+  }
+  const ext = num('ext'), med = num('med'), chore = num('chore'), vid = num('video'), key = num('key');
+  if (ext) add('F', '加購：延長服務', `${money(R.addons.extend15)} × ${ext}（15 分鐘）`, R.addons.extend15 * ext);
+  if (med) add('F', '加購：口服藥／外用藥', `${money(R.addons.med)} × ${med} 趟`, R.addons.med * med);
+  if (chore) add('F', '加購：順手家務', `${money(R.addons.chore)} × ${chore} 項`, R.addons.chore * chore);
+  if (vid) add('F', '加購：即時視訊回報', R.videoFree ? `定價 ${money(R.addons.video)} × ${vid} 次，目前免費贈送` : `${money(R.addons.video)} × ${vid} 次`, R.videoFree ? 0 : R.addons.video * vid);
+  if (key) add('F', '加購：鑰匙另約取或還', `${money(R.addons.key)} × ${key} 趟`, R.addons.key * key);
+
+  const subtotal = rows.reduce((s, r) => s + r.amount, 0);
+
+  // G 折扣類：擇優不疊加
+  const cand = [];
+  if ($('#founder').checked) cand.push({id: 'A', name: '創始客戶 8 折', amount: Math.round(subtotal * (1 - R.discounts.founder)), calc: `小計 ${money(subtotal)} × 20%`});
+  if ($('#bundle').checked) {
+    const per = T >= 10 ? R.discounts.bundle10 : (T >= 5 ? R.discounts.bundle5 : 0);
+    if (!per) warns.push('多趟套裝需連續 5 趟以上，目前趟數未達。');
+    cand.push({id: T >= 10 ? 'D' : 'C', name: `多趟套裝（${T >= 10 ? '10 趟起' : '5 趟起'}）`, amount: per * T, calc: `${money(per)} × ${T} 趟`});
+  }
+  if ($('#repeat').checked) cand.push({id: 'B', name: '回購客戶', amount: R.discounts.repeat * T, calc: `${money(R.discounts.repeat)} × ${T} 趟`});
+  let best = null;
+  for (const c of cand) if (!best || c.amount > best.amount) best = c;
+  const disc = [];
+  if (best && best.amount > 0) {
+    disc.push({code: 'G', id: best.id, name: '優惠：' + best.name, calc: cand.length > 1 ? `${best.calc}（擇優，已選 ${cand.length} 種）` : best.calc, amount: best.amount});
+  }
+  const same2 = num('same2');
+  if (same2) disc.push({code: 'G', name: '優惠：同日第二趟', calc: `${money(R.discounts.sameDay2)} × ${same2} 次（可疊加）`, amount: R.discounts.sameDay2 * same2});
+  const ref = num('ref');
+  if (ref) disc.push({code: 'H', name: '推薦折抵金', calc: `${money(R.discounts.referral)} × ${ref} 次`, amount: R.discounts.referral * ref});
+  const discTotal = disc.reduce((s, d) => s + d.amount, 0);
+  let total = subtotal - discTotal;
+  if (total < 0) { total = 0; warns.push('折扣超過小計，請確認。'); }
+
+  // I 付款
+  let pay;
+  if (T <= R.payment.fullPrepayMaxTrips) pay = {mode: `${T} 趟，確認預約時全額預付`, deposit: total, balance: 0};
+  else { const d = Math.round(total * R.payment.depositRate); pay = {mode: `${T} 趟，預收 50% 訂金，餘款依結算表所載日期結清`, deposit: d, balance: total - d}; }
+
+  const typhoon = {trips: hTy, amount: R.holiday.typhoon * hTy};
+  const inputs = {dist: $('#dist').value, slot, hNat, hCny, ext, med, chore, vid, key, same2, ref};
+  return {T, cats, minutes, typhoon, inputs, rows, subtotal, disc, discTotal, total, pay, warns};
+}
+
+/* ===== 輸出 ===== */
+function render() {
+  const c = calc();
+  const vis = (id, on) => { const r = document.querySelector(`[data-row="${id}"]`); if (r) r.style.display = on ? '' : 'none'; };
+  vis('distCase', $('#dist').value === 'd3');
+  vis('catCase', c.cats >= RULES.multiCat.quoteFrom);
+  $('#warnings').innerHTML = c.warns.map(w => `<div class="warn">${w}</div>`).join('');
+  let h = '';
+  for (const r of c.rows) h += `<tr><td>${r.code} ${r.name}<small>${r.calc}${r.extra ? '・' + r.extra : ''}</small></td><td class="amt">${money(r.amount)}</td></tr>`;
+  h += `<tr class="sub"><td>小計（折扣前）</td><td class="amt">${money(c.subtotal)}</td></tr>`;
+  for (const d of c.disc) h += `<tr class="disc"><td>${d.code} ${d.name}<small>${d.calc}</small></td><td class="amt">−${money(d.amount)}</td></tr>`;
+  h += `<tr class="total"><td>應付總額</td><td class="amt">${money(c.total)}</td></tr>`;
+  $('#detail').innerHTML = h;
+  $('#pay').innerHTML = `<b>付款</b>：${c.pay.mode}<br>${c.T <= RULES.payment.fullPrepayMaxTrips ? `應預付 ${money(c.pay.deposit)}` : `訂金 ${money(c.pay.deposit)}，尾款 ${money(c.pay.balance)}`}`;
+  $('#other').innerHTML = `<b>另計，服務後結算，不含在總額</b>：颱風天若仍服務，每趟加 ${money(RULES.holiday.typhoon)}${c.typhoon.trips ? `（已填 ${c.typhoon.trips} 趟，共 ${money(c.typhoon.amount)}）` : ''}；緊急就醫陪同 ${money(RULES.other.escort)}／小時（不足 1 小時以 1 小時計）加交通實報實銷；代購並帶到，代購費實報實銷加跑腿 ${money(RULES.other.errand)}／次。`;
+  $('#preview').value = lineText(c);
+  return c;
+}
+function lineText(c) {
+  const L = [];
+  L.push('【初步估價】');
+  L.push(`貓咪到府照顧 ${c.T} 趟，${c.cats} 隻貓，每趟約 ${c.minutes} 分鐘`);
+  if (sel.size) L.push(`服務日期：${datesSummary()}`);
+  for (const r of c.rows) L.push(`${r.name}：${r.calc}${r.amount ? ' = ' + money(r.amount) : ''}`);
+  if (c.disc.length) { L.push(`小計：${money(c.subtotal)}`); for (const d of c.disc) L.push(`${d.name}：−${money(d.amount)}`); }
+  L.push(`預估總額：${money(c.total)}`);
+  L.push(c.T <= RULES.payment.fullPrepayMaxTrips ? `付款：確認預約時全額預付 ${money(c.pay.deposit)}` : `付款：預收 50% 訂金 ${money(c.pay.deposit)}，尾款 ${money(c.pay.balance)} 依結算表所載日期結清`);
+  L.push(`颱風天若仍服務，每趟加 ${money(RULES.holiday.typhoon)}${c.typhoon.trips ? `（已填 ${c.typhoon.trips} 趟，共 ${money(c.typhoon.amount)}）` : ''}，緊急就醫陪同、代購並帶到，皆於服務後依實際發生結算，不含在上述金額。`);
+  L.push('以上為初步估價，實際金額以免費家訪後的報價與《貓咪照護資料與費用結算表》為準。');
+  return L.join('\n');
+}
+function formText(c) {
+  const I = c.inputs, R = RULES, L = [];
+  const keys = [...sel.keys()].sort();
+  const t1 = (document.getElementById('schedT1') || {}).value || '', t2 = (document.getElementById('schedT2') || {}).value || '';
+  const catOpt = c.cats <= 2 ? '1~2隻 不加價' : (c.cats === 3 ? '3隻 +100（+10分鐘）' : c.cats === 4 ? '4隻 +200（+20分鐘）' : c.cats === 5 ? '5隻 +300（+30分鐘）' : '6隻以上 個案報價');
+  const distOpt = {d0: '3公里內 +0', d1: '3至5公里 +100', d2: '5至7公里 +200', d3: '超過7公里 個案報價'}[I.dist];
+  let slotOpt = '一般時段 不加價';
+  if (sel.size) { const e = slotInfo.early, n = slotInfo.night; slotOpt = e && n ? '早鳥與夜間都有（表單只能單選，請選主要時段並在備註說明）' : e ? '早鳥 +100（06：00–08：00）' : n ? '夜間 +100（21：00–23：00）' : '一般時段 不加價'; }
+  else if (I.slot) slotOpt = `早鳥或夜間（共 ${I.slot} 趟）`;
+  const adds = [];
+  if (I.ext) adds.push(`延長服務 +100/15分（${I.ext} 單位）`);
+  if (I.med) adds.push(`口服藥／外用藥 +100（${I.med} 趟）`);
+  if (I.chore) adds.push(`順手家務 +50/項（${I.chore} 項）`);
+  if (I.vid) adds.push(`即時視訊回報 +50/次 (免費贈送)（${I.vid} 次）`);
+  if (I.key) adds.push(`鑰匙另約取或還 +200/趟（${I.key} 趟）`);
+  const gDisc = c.disc.filter(d => d.code === 'G'), gSum = gDisc.reduce((x, d) => x + d.amount, 0);
+  const letters = [];
+  for (const d of gDisc) if (d.id) letters.push({A: 'A. 創始客戶8折（需同意行銷使用）', B: 'B. 回購：每趟-30', C: 'C. 多趟：5趟每趟-50', D: 'D. 多趟：10趟每趟-80'}[d.id]);
+  if (I.same2) letters.push(`E. 同日兩趟第二趟-100（${I.same2} 次）`);
+  const refSum = c.disc.filter(d => d.code === 'H').reduce((x, d) => x + d.amount, 0);
+  L.push('貓咪照護資料與費用結算表：填寫對照（依表單欄位順序）');
+  if (keys.length) {
+    const last = parseKey(keys[keys.length - 1]); const due = new Date(last); due.setDate(due.getDate() + 3);
+    L.push(`服務期間起日｜${keys[0].replace(/-/g, '/')}`);
+    L.push(`服務期間迄日｜${keys[keys.length - 1].replace(/-/g, '/')}`);
+    L.push(`服務日期明細｜${datesSummary()}`);
+    L.push(`結清日期（最晚為服務結束日+3天）｜最晚 ${key(due.getFullYear(), due.getMonth(), due.getDate()).replace(/-/g, '/')}`);
+  }
+  L.push(`第一趟抵達時間｜${t1 || '（請選擇）'}`);
+  L.push(`第二趟抵達時間｜${c.T > (keys.length || c.T) || sel.size && [...sel.values()].some(v => v.trips === 2) ? (t2 || '（請選擇）') : '無（不需填寫）'}`);
+  L.push(`總趟數（每趟 $600）｜選 ${c.T}${c.T > 30 ? '（表單最多 30，超過請改填備註）' : ''}`);
+  L.push(`多貓加價（每趟）｜${catOpt}`);
+  L.push(`距離加價（每趟）｜${distOpt}`);
+  L.push(`時段加價（每趟）｜${slotOpt}`);
+  L.push(`加購項目｜${adds.length ? adds.join('；') : '（不勾選）'}`);
+  L.push(`假日加價（國定假日 +200/趟）｜選 ${I.hNat}${I.hNat > 10 ? '（表單最多 10，超過請在備註說明）' : ''}`);
+  L.push(`假日加價（春節假日 +400/趟）｜選 ${I.hCny}${I.hCny > 10 ? '（表單最多 10，超過請在備註說明）' : ''}`);
+  L.push(`小計（手動填入）｜${money(c.subtotal)}`);
+  L.push(`優惠折扣｜${letters.length ? letters.join('；') : '（不勾選）'}`);
+  L.push(`優惠折扣小計（手動填入）｜${gSum ? '−' + money(gSum) : '$0'}`);
+  L.push(`推薦折抵金（一次性）｜${refSum ? '−' + money(refSum) : '$0'}`);
+  L.push(`應付總額 本次總計（手動填入）｜${money(c.total)}`);
+  L.push(c.T <= R.payment.fullPrepayMaxTrips ? `訂金50%（4趟以下全額預付）｜${money(c.pay.deposit)}` : `訂金50%｜${money(c.pay.deposit)}`);
+  L.push(`尾款50%（手動填入）｜${money(c.pay.balance)}`);
+  if (c.typhoon.trips) L.push(`另計（服務後結算，不含在總額）｜颱風天仍服務 ${money(R.holiday.typhoon)} × ${c.typhoon.trips} 趟 = ${money(c.typhoon.amount)}`);
+  return L.join('\n');
+}
+
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1600); }
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); toast('已複製'); }
+  catch (e) { const ta = $('#preview'); ta.value = text; ta.select(); document.execCommand('copy'); toast('已複製'); }
+}
+
+build();
+loadHolidays(calY); loadHolidays(calY + 1);
+document.addEventListener('click', (e) => {
+  if (calClick(e)) return;
+  const b = e.target.closest('button[data-id]');
+  if (b) { const i = document.getElementById(b.dataset.id); const min = parseInt(i.min || 0, 10), max = parseInt(i.max || 999, 10); i.value = Math.min(max, Math.max(min, (parseInt(i.value, 10) || 0) + parseInt(b.dataset.d, 10))); render(); }
+});
+document.addEventListener('input', render);
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'medAll') { document.getElementById('medFirst').checked = e.target.checked; document.getElementById('medSecond').checked = e.target.checked; }
+  if ((e.target.id === 'medFirst' || e.target.id === 'medSecond') && !e.target.checked) document.getElementById('medAll').checked = false;
+  dateChange(e);
+  if (e.target.closest && e.target.closest('.sched')) applyDates();
+  render();
+});
+$('#copyLine').addEventListener('click', () => copy(lineText(calc())));
+$('#copyForm').addEventListener('click', () => copy(formText(calc())));
+$('#copySched').addEventListener('click', () => { if (!sel.size) { toast('請先在日曆選日期'); return; } copy(schedText()); });
+$('#reset').addEventListener('click', () => { sel.clear(); rangeStart = null; build(); render(); });
+render();
+window.__calc = calc;   // 供測試用
+</script>
+</body>
+</html>
