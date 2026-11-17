@@ -273,6 +273,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .nav-links a.nl::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--blue);transform:scaleX(0);transform-origin:left;transition:transform .25s}
 .nav-links a.nl:hover{color:var(--blue)}
 .nav-links a.nl:hover::after{transform:scaleX(1)}
+.nav-links a.nl.on{color:var(--blue)}
+.nav-links a.nl.on::after{transform:scaleX(1)}
 .burger{display:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);align-items:center;justify-content:center}
 .burger span,.burger span::before,.burger span::after{display:block;width:18px;height:2px;background:var(--ink-d);border-radius:2px;position:relative;transition:transform .25s,top .25s,background .25s}
 .burger span::before,.burger span::after{content:"";position:absolute;left:0}
@@ -432,7 +434,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .steps{margin-top:29px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;position:relative}
 .step{display:flex;align-items:flex-start;gap:18px;padding:0 0 0 7px;position:relative}
 .step:first-child{padding-left:4px}
-.step>div{margin-top:29px}
+.step>div{margin-top:29px;padding-right:22px}
 .step+.step::before{content:"";position:absolute;left:0;top:30px;height:102px;width:1px;background:rgba(255,255,255,.55)}
 .step img{width:90px;height:90px;flex:none}
 .step h3{font-size:22px;font-weight:500;line-height:38px;color:#fff}
@@ -1063,6 +1065,45 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   /* TOP 按鈕 */
   var top=d.querySelector('.top-btn');
   if(top)top.addEventListener('click',function(){window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});});
+
+  /* 選單：標示目前所在段落（沒有對應選單的段落不標示；點選單後暫停偵測，等捲動停止再接手） */
+  var spyLinks=[].slice.call(d.querySelectorAll('.nav-links a.nl[href^="#"]'));
+  var spyBlocks=[].slice.call(d.querySelectorAll('main > section, footer'));
+  var spyMap={};
+  spyLinks.forEach(function(a){spyMap[a.getAttribute('href').slice(1)]=a;});
+  var spyOn=null,spyLock=false,spyTimer=0,spyTick=false;
+  function spySet(a){
+    if(a===spyOn)return;
+    spyLinks.forEach(function(l){l.classList.remove('on');l.removeAttribute('aria-current');});
+    if(a){a.classList.add('on');a.setAttribute('aria-current','location');}
+    spyOn=a;
+  }
+  function spyUpdate(){
+    spyTick=false;if(spyLock)return;
+    var pad=parseInt(getComputedStyle(root).scrollPaddingTop,10)||96;
+    var probe=pad+24,hit=null;
+    for(var i=0;i<spyBlocks.length;i++){
+      var r=spyBlocks[i].getBoundingClientRect();
+      if(r.top<=probe&&r.bottom>probe){hit=spyBlocks[i];break;}
+    }
+    var ft=d.querySelector('footer');
+    if(ft&&ft.getBoundingClientRect().top<window.innerHeight*0.6)hit=ft;
+    spySet(hit&&spyMap[hit.id]?spyMap[hit.id]:null);
+  }
+  function spyRequest(){if(!spyTick){spyTick=true;setTimeout(spyUpdate,40);}}
+  window.addEventListener('scroll',function(){
+    if(spyLock){clearTimeout(spyTimer);spyTimer=setTimeout(function(){spyLock=false;spyRequest();},160);return;}
+    spyRequest();
+  },{passive:true});
+  window.addEventListener('resize',spyRequest);
+  window.addEventListener('load',spyRequest);
+  spyLinks.forEach(function(a){
+    a.addEventListener('click',function(){
+      spySet(a);spyLock=true;clearTimeout(spyTimer);
+      spyTimer=setTimeout(function(){spyLock=false;spyRequest();},700);
+    });
+  });
+  spyRequest();
 
   /* 常見問題：點擊展開 / 收合 */
   d.querySelectorAll('.qa').forEach(function(qa){
