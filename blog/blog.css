@@ -31,7 +31,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .pill{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:0 26px;height:55px;font-weight:700;font-size:14px;letter-spacing:.03em;white-space:nowrap;transition:background .25s,color .25s,border-color .25s,box-shadow .25s,transform .25s;line-height:24px}
 .pill:hover .ar{transform:translate(3px,-3px)}
 .pill.go:hover .ar{transform:translateX(4px)}
-.pill-o{background:var(--orange);color:#fffefa;box-shadow:0 8px 20px -10px var(--orange)}
+.pill-o{background:var(--orange);color:#fffefa;box-shadow:0 4px 12px -8px var(--orange)}
 .pill-o:hover{background:var(--orange-d);transform:translateY(-1px)}
 .pill-g{border:1px solid var(--line);color:var(--muted)}
 .pill-g:hover{border-color:var(--blue);color:var(--blue)}
@@ -193,9 +193,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .sortmenu button[aria-pressed="true"]{color:var(--blue);font-weight:700}
 .sortmenu button[aria-pressed="true"]::after{content:"";width:6px;height:11px;margin-right:2px;border:solid var(--blue);border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px)}
 
-.feat{display:grid;grid-template-columns:1fr 1fr;height:356px;background:var(--sand);border-radius:28px;overflow:hidden;color:var(--ink)}
+.feat{display:grid;grid-template-columns:1fr 1fr;min-height:356px;background:var(--sand);border-radius:28px;overflow:hidden;color:var(--ink)}
 .feat .cv{position:relative;background:#ebe1d6;overflow:hidden}
-.feat .cv img{position:absolute;left:15.28%;top:27px;width:71.65%;height:313px;object-fit:contain;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.feat .cv img{position:absolute;left:15.28%;top:50%;margin-top:-156px;width:71.65%;height:313px;object-fit:contain;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .feat .tx{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:16px;padding:56px;min-width:0}
 .feat .meta{gap:25px;font-size:14px;line-height:25px}
 .feat .meta .cat{gap:9px;letter-spacing:.03em}
@@ -273,7 +273,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .toc a:hover{color:var(--blue)}
 .toc a.on{font-weight:700;color:var(--blue)}
 
-.aback{margin-top:40px;text-align:center}
+.aback{margin-top:40px;padding-top:28px;border-top:1px solid var(--line);text-align:center}
 .pill.back .ar{transform:rotate(180deg)}
 .pill.back.go:hover .ar{transform:rotate(180deg) translateX(4px)}
 
@@ -307,6 +307,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .sbox{flex:1 1 200px;width:auto}
   .feat{grid-template-columns:1fr;height:auto}
   .feat .cv{height:260px}
+  .feat .cv img{height:230px;margin-top:-115px}
   .feat .tx{padding:28px 24px 32px}
   .feat h2{font-size:26px;line-height:1.55}
   .grid{gap:20px}
