@@ -51,7 +51,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .nav-links a.nl::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--blue);transform:scaleX(0);transform-origin:left;transition:transform .25s}
 .nav-links a.nl:hover{color:var(--blue)}
 .nav-links a.nl:hover::after{transform:scaleX(1)}
-.nav-links a.nl.on{color:var(--blue)}
 .nav-links a.nl.on::after{transform:scaleX(1)}
 .burger{display:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);align-items:center;justify-content:center}
 .burger span,.burger span::before,.burger span::after{display:block;width:18px;height:2px;background:var(--ink-d);border-radius:2px;position:relative;transition:transform .25s,top .25s,background .25s}
@@ -132,7 +131,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .kits img{transition:none}
 }
 /* ===== BLOG v2（依 Figma「部落格・列表／文章」2026-11 設計；桌面版尺寸為準，手機版由桌面版推導）===== */
-.nav-links a.nl.on{color:var(--blue)}
 .nav-links a.nl.on::after{transform:scaleX(1)}
 
 /* ---------- 共用：圖示、小按鈕、卡片 ---------- */
