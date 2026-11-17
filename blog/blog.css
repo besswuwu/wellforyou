@@ -70,7 +70,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .flogo img{display:block;width:auto;height:max(calc(32/1440*100cqw),22px)}
 .floc{padding-top:calc(105/1440*100cqw);font-family:var(--en);font-weight:500;font-size:16px;letter-spacing:.1em}
 .frule{height:1px;background:rgba(255,255,255,.85);margin-top:calc(83/1440*100cqw)}
-.fgrid{display:grid;grid-template-columns:1fr auto auto;gap:calc(60/1440*100cqw);padding-top:calc(32/1440*100cqw)}
+.fgrid{display:grid;grid-template-columns:1fr auto auto;gap:calc(60/1440*100cqw);row-gap:calc(30/1440*100cqw);padding:calc(32/1440*100cqw) 0 calc(44/1440*100cqw)}
 .fgrid h2{font-weight:900;font-size:30px;line-height:1.7;color:#fffefa}
 .fgrid p{font-size:15px;line-height:31px;max-width:400px;margin-top:6px}
 .fgrid p.ad{font-size:14px;line-height:25px;margin-top:34px}
@@ -79,7 +79,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .fcol a:hover{opacity:.7}
 .fcol.nav2{min-width:100px}
 .fcol.soc{text-align:right}
-.fbot{display:flex;align-items:flex-end;justify-content:space-between;padding:calc(30/1440*100cqw) 0 calc(44/1440*100cqw)}
+/* 版權列與 Contact 按鈕放在頁尾格線的第二列：按鈕橫跨選單與社群兩欄，左右緣和選單文字、社群文字對齊 */
+.fbot{display:contents}
+.fbot .cp{grid-column:1;align-self:end}
+.fbot .pill{grid-column:2/4;width:100%}
 .fbot .cp{font-size:14px;letter-spacing:.03em;line-height:25px}
 .top-btn{position:absolute;right:calc(91/1440*100cqw);top:calc(-22/1440*100cqw);width:68px;height:68px;border-radius:50%;border:1px solid #fff;background:var(--blue);color:#fff;font-family:var(--en);font-weight:700;font-size:12px;letter-spacing:.05em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;z-index:3;transition:background .25s,color .25s}
 .top-btn:hover{background:#fff;color:var(--blue)}
@@ -119,7 +122,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .fgrid{grid-template-columns:1fr 1fr;gap:28px 20px;padding-top:30px}
   .fgrid>div:first-child{grid-column:1/-1}
   .fgrid .pill-lg{height:58px;font-size:24px}
-  .fbot{padding:30px 0 40px;flex-direction:column;align-items:stretch;gap:24px}
+  .fgrid{padding-bottom:40px;row-gap:28px}
+  .fbot .cp,.fbot .pill{grid-column:1/-1}
   .top-btn{right:var(--pad);top:-34px}
   .kits{display:none}
 }
@@ -209,6 +213,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .feat:hover .btn-b{background:var(--blue-d);border-color:var(--blue-d)}
 
 .filters{display:flex;flex-wrap:wrap;gap:10px;margin-top:45px}
+/* 分類標籤（左）與搜尋、排序（右）同一行 */
+.fbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 24px;margin-top:45px}
+.fbar .filters{margin-top:0}
+.fbar .srch{margin:0;padding-right:0;flex-wrap:nowrap}
+.bmain .feat{margin-top:14px}
+@media (max-width:900px){.fbar .srch{flex-wrap:wrap;width:100%}}
 .fchip{height:38px;padding:0 20px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:14px;line-height:24px;font-weight:500;color:var(--ink);transition:background .2s,color .2s,border-color .2s}
 .fchip:hover{border-color:var(--blue);color:var(--blue)}
 .fchip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
