@@ -51,6 +51,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .nav-links a.nl::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--blue);transform:scaleX(0);transform-origin:left;transition:transform .25s}
 .nav-links a.nl:hover{color:var(--blue)}
 .nav-links a.nl:hover::after{transform:scaleX(1)}
+.nav-links a.nl.on{color:var(--blue)}
+.nav-links a.nl.on::after{transform:scaleX(1)}
 .burger{display:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);align-items:center;justify-content:center}
 .burger span,.burger span::before,.burger span::after{display:block;width:18px;height:2px;background:var(--ink-d);border-radius:2px;position:relative;transition:transform .25s,top .25s,background .25s}
 .burger span::before,.burger span::after{content:"";position:absolute;left:0}
@@ -285,8 +287,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .author .svc{margin-top:12px}
 
 .related{width:min(1270px,calc(100% - 2*var(--pad)));margin:80px auto 0;padding-bottom:89px}
-.related h2{display:flex;align-items:flex-end;gap:16px;font-family:var(--en);font-weight:500;font-size:clamp(42px,4.17vw,60px);line-height:77px;letter-spacing:-.02em;color:var(--blue)}
-.related h2 small{margin-bottom:8px;font-family:var(--zh);font-weight:700;font-size:16px;line-height:24px;letter-spacing:.03em;color:var(--ink)}
+.related h2{display:flex;align-items:baseline;gap:16px;font-family:var(--en);font-weight:500;font-size:clamp(42px,4.17vw,60px);line-height:77px;letter-spacing:-.02em;color:var(--blue)}
+.related h2 small{font-family:var(--zh);font-weight:700;font-size:16px;line-height:24px;letter-spacing:.03em;color:var(--ink)}
 .related .grid{margin-top:22px}
 
 /* ---------- 響應式（手機／平板版由桌面版推導，之後依設計師手機版再調整）---------- */

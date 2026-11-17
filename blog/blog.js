@@ -42,10 +42,13 @@
     cards.forEach(function(c,i){c.setAttribute('data-i',i);c.__t=(c.textContent||'').replace(/\s+/g,'').toLowerCase();});
     var st={cat:'all',q:'',old:false,page:1};
 
+    /* 精選文章：沒有搜尋、且符合目前分類時才顯示在上方（列表內不重複出現） */
+    var featCats=feat?(feat.getAttribute('data-cat')||'').split('|'):[];
+    function featOn(){return !!feat&&!st.q&&(st.cat==='all'||featCats.indexOf(st.cat)>=0);}
     function list(){
-      var all=st.cat==='all'&&!st.q;
+      var on=featOn();
       var out=cards.filter(function(c){
-        if(c.classList.contains('dup')&&all)return false;
+        if(c.classList.contains('dup')&&on)return false;
         if(st.cat!=='all'&&c.getAttribute('data-cat').split('|').indexOf(st.cat)<0)return false;
         if(st.q&&c.__t.indexOf(st.q)<0)return false;
         return true;
@@ -76,16 +79,16 @@
     }
     function go(p,scroll){st.page=p;render();if(scroll!==false){var y=grid.getBoundingClientRect().top+window.scrollY-130;window.scrollTo({top:Math.max(0,y),behavior:reduce?'auto':'smooth'});}}
     function render(){
-      var all=st.cat==='all'&&!st.q;
-      grid.classList.toggle('filtering',!all);
-      if(feat)feat.hidden=!(all&&st.page===1);
+      var on=featOn();
+      grid.classList.toggle('filtering',!on);
+      if(feat)feat.hidden=!(on&&st.page===1);
       var L=list(),n=Math.max(1,Math.ceil(L.length/PER));
       if(st.page>n)st.page=n;
       var from=(st.page-1)*PER,show=L.slice(from,from+PER);
       cards.forEach(function(c){c.hidden=show.indexOf(c)<0;});
       show.forEach(function(c){grid.appendChild(c);});
       chips.forEach(function(c){c.setAttribute('aria-pressed',c.getAttribute('data-cat')===st.cat?'true':'false');});
-      if(empty)empty.hidden=L.length>0||(all&&!!feat);
+      if(empty)empty.hidden=L.length>0||on;
       sortOpts.forEach(function(b){b.setAttribute('aria-pressed',(b.getAttribute('data-sort')==='old')===st.old?'true':'false');});
       renderPager(n);
     }
