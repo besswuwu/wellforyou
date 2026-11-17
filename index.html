@@ -518,6 +518,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .foot:hover .kits .k1{transform:translateX(-16%)}
 .foot:hover .kits .k2{transform:translateX(-17.5%)}
 .foot:hover .kits .k3{transform:translateX(-21.5%)}
+.foot.seen .kits .k1{transform:translateX(-16%)}
+.foot.seen .kits .k2{transform:translateX(-17.5%)}
+.foot.seen .kits .k3{transform:translateX(-21.5%)}
 
 /* reveal */
 .rv{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
@@ -578,7 +581,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .hero .sub{font-size:15px;margin-top:10px}
   .hero .ctas{margin-top:26px;flex-wrap:wrap;gap:12px}
   .hero .ctas .pill{height:50px;font-size:13px;padding-inline:22px}
-  .hero .scroll{display:none}
+  .hero .scroll{display:inline-flex;margin-top:22px;font-size:12px;gap:10px}
+  .hero .scroll i{width:34px;height:34px}
   .hero .art{position:relative;height:clamp(270px,80vw,460px);margin:30px calc(var(--pad)*-1) -34px;overflow:visible}
   .bigword{position:absolute;right:4%;top:0;font-size:min(23vw,200px);-webkit-text-stroke:1.5px rgba(27,61,228,.45)}
   .hero .stage .art .cat,.hero .stage .art .bigword{position:absolute}
@@ -634,6 +638,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .steps{grid-template-columns:1fr 1fr;gap:34px 0;margin-top:32px}
   .step{padding:0 6px;flex-direction:column;gap:6px}
   .step+.step::before{display:none}
+  .step:nth-child(even)::before{display:block;top:2px;height:calc(100% - 4px)}
   .step img{width:76px;height:76px}
   .step p{max-width:none}
   .notice{padding:68px 0 70px}
@@ -665,6 +670,26 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .fbot .cp,.fbot .pill{grid-column:1/-1}
   .top-btn{right:var(--pad);top:-34px}
   .kits{display:none}
+}
+/* 手機：頁尾右下角（連結欄右側的空白處）放三隻小貓咪，從右邊探出來 */
+@media (max-width:640px){
+  .kits{display:block;left:auto;right:0;top:auto;bottom:174px;width:200px;height:84px}
+  .kits img{left:auto;top:auto;bottom:0;right:var(--x);transform:translateX(calc(100% + var(--x) + 2px)) scaleX(-1)}
+  .kits .k1{--x:132px;width:58px;top:auto;bottom:0}
+  .kits .k2{--x:68px;width:72px;top:auto;bottom:0}
+  .kits .k3{--x:0px;width:88px;top:auto;bottom:0}
+  .foot:hover .kits img,.foot.seen .kits img{transform:translateX(14%) scaleX(-1)}
+}
+/* 平板（直式）：貓咪改從右側探出，位置在頁尾大字下方、文字右邊的空白處；手機寬度沒有空間，維持隱藏 */
+@media (min-width:641px) and (max-width:900px){
+  .kits{display:block;left:auto;right:0;top:64px;bottom:auto;width:200px;height:430px}
+  .kits img{left:auto;right:0;transform:translateX(102%) scaleX(-1)}
+  .kits .k1{top:0;width:118px}
+  .kits .k2{top:96px;width:150px}
+  .kits .k3{top:208px;width:190px}
+  .foot:hover .kits .k1,.foot.seen .kits .k1{transform:translateX(16%) scaleX(-1)}
+  .foot:hover .kits .k2,.foot.seen .kits .k2{transform:translateX(17.5%) scaleX(-1)}
+  .foot:hover .kits .k3,.foot.seen .kits .k3{transform:translateX(21.5%) scaleX(-1)}
 }
 @media (max-width:900px){
   .h-en,.about .h-en,.faq .l .h-en{font-size:clamp(34px,9.4vw,48px);line-height:1.15;white-space:nowrap}
@@ -1119,6 +1144,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       btn.setAttribute('aria-expanded',open?'true':'false');
     });
   });
+
+  /* 觸控裝置（平板橫式）沒有滑鼠移過，頁尾進入畫面時讓三隻貓咪自己跑出來 */
+  var ft=d.querySelector('.foot');
+  if(ft&&'IntersectionObserver' in window&&window.matchMedia&&matchMedia('(hover:none)').matches){
+    new IntersectionObserver(function(es){es.forEach(function(e){ft.classList.toggle('seen',e.isIntersecting);});},{threshold:.3}).observe(ft);
+  }
 
   /* 進場動畫：文字淡入、曲線描繪 */
   if(!('IntersectionObserver' in window)||reduce){
