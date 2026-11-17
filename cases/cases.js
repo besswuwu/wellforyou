@@ -18,6 +18,12 @@
   var top=d.querySelector('.top-btn');
   if(top)top.addEventListener('click',function(){window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});});
 
+  /* 觸控裝置（平板橫式）沒有滑鼠移過，頁尾進入畫面時讓三隻貓咪自己跑出來 */
+  var ft=d.querySelector('.foot');
+  if(ft&&'IntersectionObserver' in window&&window.matchMedia&&matchMedia('(hover:none)').matches){
+    new IntersectionObserver(function(es){es.forEach(function(e){ft.classList.toggle('seen',e.isIntersecting);});},{threshold:.3}).observe(ft);
+  }
+
   /* 進場動畫 */
   var rv=d.querySelectorAll('.rv');
   if(!('IntersectionObserver' in window)||reduce){rv.forEach(function(el){el.classList.add('in');});}
