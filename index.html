@@ -273,7 +273,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .nav-links a.nl::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--blue);transform:scaleX(0);transform-origin:left;transition:transform .25s}
 .nav-links a.nl:hover{color:var(--blue)}
 .nav-links a.nl:hover::after{transform:scaleX(1)}
-.nav-links a.nl.on{color:var(--blue)}
 .nav-links a.nl.on::after{transform:scaleX(1)}
 .burger{display:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);align-items:center;justify-content:center}
 .burger span,.burger span::before,.burger span::after{display:block;width:18px;height:2px;background:var(--ink-d);border-radius:2px;position:relative;transition:transform .25s,top .25s,background .25s}
@@ -410,6 +409,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .pbox{border:2px solid var(--line);border-radius:30px;padding:19px 34px 0}
 .pside .pbox:nth-child(2){padding-top:31px}
 .pbox .prow:last-child{padding-bottom:12px}
+/* 電腦版：右側兩張卡片，內容到框線上下距離一致（27→30px），並讓整體下緣與左側基本加價卡對齊 */
+@media(min-width:901px){.pbox,.pside .pbox:nth-child(2){padding-top:22px}.pbox .prow:last-child{padding-bottom:25px}}
 .pbox h3{font-size:16px;font-weight:500;color:var(--blue);line-height:29px;margin-bottom:0}
 .pbox .prow{padding:20px 0 21px}
 .tiles{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;padding-top:24px}
@@ -455,11 +456,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* ABOUT */
 .about{position:relative;overflow:hidden;background:var(--sand2);container-type:inline-size;min-height:calc(650/1440*100cqw)}
-.about .art{position:absolute;left:0;top:0;width:100%;height:100%}
-.about .ppl{position:absolute;bottom:0;pointer-events:none}
+.about .art{position:absolute;left:0;top:0;width:100%;height:100%;z-index:2}
+.about .ppl{position:absolute;bottom:0;pointer-events:none;z-index:3}
 .about .p1{left:calc(115/1440*100cqw);width:calc(318/1440*100cqw)}
 .about .p2{left:calc(344/1440*100cqw);width:calc(338/1440*100cqw)}
-.about .miso{position:absolute;left:calc(353/1440*100cqw);top:calc(47/1440*100cqw);width:calc(139/1440*100cqw);transform:rotate(-6deg);pointer-events:none;z-index:3}
+.about .miso{position:absolute;left:calc(353/1440*100cqw);top:calc(47/1440*100cqw);width:calc(139/1440*100cqw);transform:rotate(-6deg);pointer-events:none;z-index:1}
 .about .txt{position:relative;z-index:2;margin-left:calc(753/1440*100cqw);padding:calc(173/1440*100cqw) var(--pad) calc(56/1440*100cqw) 0;max-width:calc(560/1440*100cqw + var(--pad))}
 .about .h-en{font-size:clamp(40px,4.17vw,60px);margin-top:15px;line-height:72px}
 .about h2{font-weight:900;font-size:clamp(24px,2.5vw,36px);line-height:1.3;letter-spacing:-.01em;color:var(--blue);margin-top:55px;line-height:46px}
