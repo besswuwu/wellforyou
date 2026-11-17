@@ -175,20 +175,20 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* ---------- 列表頁：搜尋、精選、分類、卡片、分頁 ---------- */
 .bmain{padding:31px 0 70px}
 .srch{display:flex;align-items:center;justify-content:flex-end;gap:16px;padding-right:18px;margin-bottom:24px}
-.sbox{display:flex;align-items:center;gap:9px;width:220px;height:55px;padding-left:20px;border:1px solid var(--line);border-radius:999px;background:var(--bg)}
-.sbox svg{width:21px;height:22px;flex:none;stroke:var(--muted);fill:none}
+.sbox{display:flex;align-items:center;gap:9px;width:220px;height:38px;padding-left:16px;border:1px solid var(--line);border-radius:999px;background:var(--bg)}
+.sbox svg{width:17px;height:18px;flex:none;stroke:var(--muted);fill:none}
 .sbox input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:14px;font-weight:500;letter-spacing:.03em;color:var(--ink)}
 .sbox input::placeholder{color:var(--muted);opacity:1;font-weight:400}
 .sbox:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,61,228,.16)}
-.sbtn{width:100px;height:55px;border-radius:999px;background:var(--blue);color:#fff;font-size:14px;font-weight:700;letter-spacing:.03em;transition:background .25s,transform .15s,filter .15s}
+.sbtn{width:96px;height:38px;border-radius:999px;background:var(--blue);color:#fff;font-size:14px;font-weight:700;letter-spacing:.03em;transition:background .25s,transform .15s,filter .15s}
 .sbtn:hover{background:var(--blue-d)}
 .sortw{position:relative}
-.sort{display:inline-flex;align-items:center;gap:12px;height:55px;padding:0 4px;font-size:14px;font-weight:500;letter-spacing:.03em;line-height:24px;color:var(--ink);transition:color .2s}
+.sort{display:inline-flex;align-items:center;gap:10px;height:38px;padding:0 4px;font-size:14px;font-weight:500;letter-spacing:.03em;line-height:24px;color:var(--ink);transition:color .2s}
 .sort:hover,.sort[aria-expanded="true"]{color:var(--blue)}
-.sort svg{width:14px;height:18px;fill:currentColor}
+.sort svg{width:12px;height:15px;fill:currentColor}
 .sortmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:168px;padding:8px;border:1px solid var(--line);border-radius:16px;background:var(--bg);box-shadow:0 10px 30px rgba(42,39,38,.12)}
 .sortmenu[hidden]{display:none}
-.sortmenu button{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;height:42px;padding:0 14px;border-radius:10px;text-align:left;font-size:14px;line-height:24px;font-weight:500;color:var(--ink);transition:background .2s,color .2s}
+.sortmenu button{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;height:38px;padding:0 14px;border-radius:10px;text-align:left;font-size:14px;line-height:24px;font-weight:500;color:var(--ink);transition:background .2s,color .2s}
 .sortmenu button:hover{background:var(--sand);color:var(--blue)}
 .sortmenu button[aria-pressed="true"]{color:var(--blue);font-weight:700}
 .sortmenu button[aria-pressed="true"]::after{content:"";width:6px;height:11px;margin-right:2px;border:solid var(--blue);border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px)}
@@ -216,15 +216,15 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .empty{margin-top:45px;color:var(--muted);font-size:16px;line-height:31px}
 
 .pager{display:flex;align-items:center;justify-content:center;margin-top:28px;font-size:14px}
-.pg-prev,.pg-next{font-weight:500;letter-spacing:.03em;color:var(--blue);line-height:42px;white-space:nowrap}
+.pg-prev,.pg-next{font-weight:500;letter-spacing:.03em;color:var(--blue);line-height:38px;white-space:nowrap}
 .pg-prev{width:105px;text-align:left;margin-right:15px}
 .pg-next{margin-left:43px}
 .pg-prev:disabled,.pg-next:disabled{color:#b7ada4;cursor:default}
 .pg-nums{display:flex;align-items:center;gap:15px}
-.pg-n{width:42px;height:42px;border-radius:50%;background:var(--bg);color:var(--blue);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
+.pg-n{width:38px;height:38px;border-radius:50%;background:var(--bg);color:var(--blue);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
 .pg-n:hover{background:var(--sand)}
 .pg-n[aria-current="page"]{background:var(--blue);color:#fff}
-.pg-gap{width:42px;text-align:center;color:var(--blue)}
+.pg-gap{width:38px;text-align:center;color:var(--blue)}
 
 /* ---------- 文章頁 ---------- */
 .acol{width:min(1038px,calc(100% - 2*var(--pad)));margin:0 auto}
