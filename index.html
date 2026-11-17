@@ -643,7 +643,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .step p{max-width:none}
   .notice{padding:68px 0 70px}
   .ngrid{grid-template-columns:1fr}
-  .nc{min-height:0}
+  .nc,.nc:nth-last-child(-n+3){min-height:0;padding-bottom:48px}
+  .nc:last-child{padding-bottom:0}
   .about{min-height:0;container-type:normal;padding-bottom:0}
   .about .txt{margin:0;padding:64px var(--pad) 26px;max-width:none;order:1}
   .about{display:flex;flex-direction:column}
@@ -723,6 +724,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .proc .steps{order:5}
   .proc .note{order:6}
   .walk{position:absolute;left:auto;right:-4%;top:66px;width:46%;margin:0}
+  .proc{overflow-x:clip}
   .step>div{margin-top:0}
   .step h3{line-height:1.5;font-size:19px}
   .step p{margin-top:6px;line-height:1.9}
