@@ -136,7 +136,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* ---------- 共用：圖示、小按鈕、卡片 ---------- */
 .meta{display:flex;align-items:center;gap:16px;font-size:12px;line-height:23px;color:var(--ink)}
 .meta .cat{display:inline-flex;align-items:center;gap:6px;font-weight:500}
-.meta .dt{display:inline-flex;align-items:center;gap:5px;font-family:var(--en);font-weight:500;letter-spacing:-.02em}
+.meta .dt{display:inline-flex;align-items:center;gap:5px;font-family:var(--en);font-weight:500;letter-spacing:0}
 .meta svg.tg{width:10px;height:11px;flex:none}
 .meta svg.ck{width:12px;height:12px;flex:none}
 
@@ -145,14 +145,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .btn-b{background:var(--blue);border:1px solid var(--blue);color:#fff}
 
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px}
-.card{position:relative;display:block;height:545px;color:var(--ink)}
+.card{position:relative;display:block;height:529px;color:var(--ink)}
 .card .cv{position:relative;height:245px;border-radius:20px;background:#f9eee6;overflow:hidden}
 .card .cv .lb{position:absolute;left:20px;top:18px;font-family:var(--en);font-size:12px;line-height:16px;color:var(--blue)}
 .card .cv img{position:absolute;left:16%;top:14.29%;width:64.5%;height:71.43%;object-fit:contain;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .card .meta{margin-top:20px;height:28px;padding-left:22px}
-.card h3{margin-top:14px;min-height:76px;padding:0 20px;font-weight:500;font-size:22px;line-height:38px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;transition:color .2s}
+.card h3{margin-top:14px;min-height:60px;padding:0 20px;font-weight:700;font-size:20px;line-height:30px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;transition:color .2s}
 .card .sum{margin-top:6px;padding:0 20px;font-size:15px;line-height:31px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card .btn-s{position:absolute;right:33px;top:475px}
+.card .btn-s{position:absolute;right:33px;top:459px}
 .card::after{content:"";position:absolute;left:10px;right:10px;bottom:8px;height:1px;background:var(--line)}
 .card:hover .cv img{transform:scale(1.04)}
 .card:hover h3{color:var(--blue)}
@@ -180,7 +180,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .sbox input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:14px;font-weight:500;letter-spacing:.03em;color:var(--ink)}
 .sbox input::placeholder{color:var(--muted);opacity:1;font-weight:400}
 .sbox:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,61,228,.16)}
-.sbtn{width:96px;height:38px;border-radius:999px;background:var(--blue);color:#fff;font-size:14px;font-weight:700;letter-spacing:.03em;transition:background .25s,transform .15s,filter .15s}
+.sbtn{width:96px;height:38px;border-radius:999px;background:var(--blue);color:#fff;font-size:14px;font-weight:700;line-height:24px;letter-spacing:.03em;transition:background .25s,transform .15s,filter .15s}
 .sbtn:hover{background:var(--blue-d)}
 .sortw{position:relative}
 .sort{display:inline-flex;align-items:center;gap:10px;height:38px;padding:0 4px;font-size:14px;font-weight:500;letter-spacing:.03em;line-height:24px;color:var(--ink);transition:color .2s}
@@ -188,7 +188,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .sort svg{width:12px;height:15px;fill:currentColor}
 .sortmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:168px;padding:8px;border:1px solid var(--line);border-radius:16px;background:var(--bg);box-shadow:0 10px 30px rgba(42,39,38,.12)}
 .sortmenu[hidden]{display:none}
-.sortmenu button{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;height:38px;padding:0 14px;border-radius:10px;text-align:left;font-size:14px;line-height:24px;font-weight:500;color:var(--ink);transition:background .2s,color .2s}
+.sortmenu button{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;height:38px;padding:0 14px;border-radius:10px;text-align:left;font-size:14px;line-height:24px;font-weight:500;letter-spacing:.03em;color:var(--ink);transition:background .2s,color .2s}
 .sortmenu button:hover{background:var(--sand);color:var(--blue)}
 .sortmenu button[aria-pressed="true"]{color:var(--blue);font-weight:700}
 .sortmenu button[aria-pressed="true"]::after{content:"";width:6px;height:11px;margin-right:2px;border:solid var(--blue);border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px)}
@@ -197,12 +197,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .feat .cv{position:relative;background:#ebe1d6;overflow:hidden}
 .feat .cv img{position:absolute;left:15.28%;top:50%;margin-top:-156px;width:71.65%;height:313px;object-fit:contain;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .feat .tx{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:16px;padding:56px;min-width:0}
-.feat .meta{gap:25px;font-size:14px;line-height:25px}
+.feat .meta{gap:25px;font-size:14px;line-height:24px}
 .feat .meta .cat{gap:9px;letter-spacing:.03em}
-.feat .meta .dt{gap:8px;font-weight:400}
+.feat .meta .dt{gap:8px}
 .feat .meta svg.tg{width:12px;height:13.5px}
 .feat .meta svg.ck{width:15px;height:15px}
-.feat h2{font-weight:900;font-size:30px;line-height:48px;letter-spacing:.01em;color:var(--ink);transition:color .2s}
+.feat h2{font-weight:900;font-size:30px;line-height:51px;letter-spacing:0;color:var(--ink);transition:color .2s}
 .feat .sum{font-size:15px;line-height:31px;color:var(--ink)}
 .feat:hover .cv img{transform:scale(1.04)}
 .feat:hover h2{color:var(--blue)}
@@ -216,12 +216,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .empty{margin-top:45px;color:var(--muted);font-size:16px;line-height:31px}
 
 .pager{display:flex;align-items:center;justify-content:center;margin-top:28px;font-size:14px}
-.pg-prev,.pg-next{font-weight:500;letter-spacing:.03em;color:var(--blue);line-height:38px;white-space:nowrap}
+.pg-prev,.pg-next{display:inline-flex;align-items:center;height:38px;font-size:14px;font-weight:500;letter-spacing:.03em;color:var(--blue);line-height:24px;white-space:nowrap}
 .pg-prev{width:105px;text-align:left;margin-right:15px}
 .pg-next{margin-left:43px}
 .pg-prev:disabled,.pg-next:disabled{color:#b7ada4;cursor:default}
 .pg-nums{display:flex;align-items:center;gap:15px}
-.pg-n{width:38px;height:38px;border-radius:50%;background:var(--bg);color:var(--blue);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
+.pg-n{width:38px;height:38px;border-radius:50%;background:var(--bg);color:var(--blue);font-size:14px;font-weight:500;line-height:24px;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
 .pg-n:hover{background:var(--sand)}
 .pg-n[aria-current="page"]{background:var(--blue);color:#fff}
 .pg-gap{width:38px;text-align:center;color:var(--blue)}
@@ -293,7 +293,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 @media (max-width:1100px){
   .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bhero .art{right:var(--pad);width:min(26vw,300px);height:auto}
-  .card{height:auto;min-height:545px;padding-bottom:84px}
+  .card{height:auto;min-height:529px;padding-bottom:84px}
   .card .btn-s{top:auto;bottom:36px}
 }
 @media (max-width:900px){
