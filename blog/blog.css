@@ -52,6 +52,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .nav-links a.nl:hover{color:var(--blue)}
 .nav-links a.nl:hover::after{transform:scaleX(1)}
 .nav-links a.nl.on::after{transform:scaleX(1)}
+/* 桌機：選單第一項的左緣對齊首屏「FOR YOU」的 F 字左緣（F 字位置為版寬的 43.231%），選單右緣對齊內容右緣 */
+@media (min-width:1280px){.nav-links{width:calc(min(100vw,1440px)*.56769 - var(--pad));justify-content:space-between;gap:0}}
 .burger{display:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);align-items:center;justify-content:center}
 .burger span,.burger span::before,.burger span::after{display:block;width:18px;height:2px;background:var(--ink-d);border-radius:2px;position:relative;transition:transform .25s,top .25s,background .25s}
 .burger span::before,.burger span::after{content:"";position:absolute;left:0}
